@@ -4,7 +4,13 @@
   "main": "index.js",
   "author": "Marcin Lech <arcinech@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
   "dependencies": {
     "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
   }
 }
