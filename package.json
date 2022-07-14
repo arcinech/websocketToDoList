@@ -1,0 +1,10 @@
+{
+  "name": "todolist_express",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Marcin Lech <arcinech@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
