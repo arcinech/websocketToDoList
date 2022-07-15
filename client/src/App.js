@@ -9,13 +9,14 @@ function App() {
   const [name, setName] = useState('');
   const [id, setId] = useState(shortid.generate());
   const [request, setRequest] = useState(false);
+  const [pending, setPending] = useState(true);
 
   useEffect(() => {
-    setSocket(io('http://localhost:3001'));
-    console.log('socket: ' + socket);
-    socket.on('updateData', data => setTasks(tasks => [...tasks, ...data]));
+    setSocket(io('http://localhost:8000'));
     socket.on('removeTask', id => removeTask(id));
     socket.on('addTask', task => addTask(task));
+    socket.on('updataData', data => setTasks(task => [...task, ...data]));
+    setPending(false);
 
     return () => {
       socket.off('updateData');
@@ -55,7 +56,7 @@ function App() {
     removeTask(id);
   };
   
-   return( 
+   if(!pending) return( 
     <div className="App">
   
       <header>
