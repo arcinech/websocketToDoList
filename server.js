@@ -13,8 +13,6 @@ const io = socket(server, {
     methods: ["GET", "POST", "DELETE"],
   }
 });
-
-let data = db.tasks;
 // app.use(express.static(path.join(__dirname, '/client/build')));
 
 app.get('*', (req,res) => { 
@@ -22,21 +20,17 @@ app.get('*', (req,res) => {
 });
 
 io.on('connection', (socket) => {
-  console.log(data)
-  socket.emit('updateData', data);
-
-  socket.on('updateData ', () => { 
-    socket.to(socket.id).emit('updateData', data);
-  });
-
+  console.log('a user connected with id: ' + socket.id);
+  io.to(socket.id).emit('updateData', () => {console.log('send:', db.tasks); return db.tasks;});
   socket.on('addTask', task => {
-    console.log(task);
-    data.push(task);
+    db.tasks.push(task)
+    console.log('task emited:' + socket.id);
     socket.broadcast.emit('addTask', task);
   });
 
-  socket.on('removeTask', task => { 
-    data = data.filter(({id}) => id !== task.id);
-    socket.broadcast.emit('removeTask', task);
+  socket.on('removeTask', id => { 
+    console.log(db.tasks);
+    db.tasks = db.tasks.filter((task) => task.id !== id);
+    socket.broadcast.emit('removeTask', id);
   });
 })
