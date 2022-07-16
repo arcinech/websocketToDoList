@@ -7,34 +7,30 @@ const app = express();
 const server = app.listen(8000, ()=> {
   console.log('Server is listening on port 8000');
 });
+
 const io = socket(server, {
   cors: {
     origin: ["http://localhost:3000"],
-    // methods: ["GET", "POST", "DELETE"],
   }
 });
-// app.use(express.static(path.join(__dirname, '/client/build')));
-
-
 
 io.on('connection', (socket) => {
-  console.log('a user connected with id: ' + socket.id);
-  console.log(db.tasks)
   io.to(socket.id).emit('updataData', (db.tasks));
+  console.log('Emitedd list of task to user:' + socket.id);
 
   socket.on('addTask', task => {
-    db.tasks.push(task)
-    console.log('task emited:' + socket.id);
+    db.tasks = [...db.tasks, task]
+    console.log('Add task:' + task);
     socket.broadcast.emit('addTask', task);
   });
 
   socket.on('removeTask', id => { 
-    console.log(db.tasks);
+    console.log('Remove task with id:' + id);
     db.tasks = db.tasks.filter((task) => task.id !== id);
     socket.broadcast.emit('removeTask', id);
   });
 
-  app.get('*', (req,res) => { 
-  res.status(404).json({message: 'Not found...' })
+  app.use((req, res) => {
+    res.status(404).json({message: 'Not found...' });
   });
 })
