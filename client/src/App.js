@@ -1,22 +1,20 @@
 import io from 'socket.io-client';
 import shortid from 'shortid';
 import {useState, useEffect} from 'react';
-// const socket = io('http://localhost:3001');
+const socket = io('http://localhost:8000');
+
 function App() {
 
   const [tasks, setTasks] = useState([]);
-  const [socket, setSocket] = useState(io());
   const [name, setName] = useState('');
   const [id, setId] = useState(shortid.generate());
-  const [request, setRequest] = useState(false);
   const [pending, setPending] = useState(true);
 
   useEffect(() => {
-    setSocket(io('http://localhost:8000'));
-    socket.on('removeTask', id => removeTask(id));
+    socket.on('removeTask', (id) => removeTask(id));
     socket.on('addTask', task => addTask(task));
     socket.on('updataData', data => setTasks(task => [...task, ...data]));
-    setPending(false);
+    setPending(bool => bool=false);
 
     return () => {
       socket.off('updateData');
@@ -25,35 +23,27 @@ function App() {
     };
   },[]);
 
-  
-  const addTask = (task) => {
-    console.log(task);
-    setTasks(tasks => [...tasks, task]);
-  }
+  //
+  const addTask = (task) => setTasks(tasks => [...tasks, task]);
+  const removeTask = (id) => setTasks(tasks => tasks.filter(task=> task.id !== id));
 
-  const removeTask = id => {
-    // console.log(id)
-    setTasks(tasks => tasks.filter(task=> task.id !== id));
-    if(!request) { 
-      socket.emit('removeTask', id);
-      setRequest(state => state=false);
-    }
-  }
-
-  const submitTask = async (e) => {
+  const submitTask =  (e) => {
     e.preventDefault();
-    if(name.length === 0) return;
+    //abort if task name is null or undefined, or empty;
+    if(!name) return;
+
+    socket.emit('addTask', {id: id, name:name});
     addTask({id: id, name:name});
-    const task = {id: id, name:name};
-    socket.emit('addTask', task);
+
     setName('');
     setId(shortid.generate());
   }
 
   const removeAction = (e, id) => {
     e.preventDefault();
-    setRequest(state => state=true);
-    removeTask(id);
+    
+    socket.emit('removeTask', id);
+    removeTask(id, true);
   };
   
    if(!pending) return( 
